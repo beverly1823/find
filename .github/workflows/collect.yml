@@ -6,8 +6,12 @@ on:
   workflow_dispatch:
     inputs:
       backfill:
-        description: "回填数量（0=正常增量，如 20000=历史回填）"
+        description: "回填数量（0=正常增量）"
         default: "0"
+        type: string
+      only:
+        description: "只跑指定来源（空=全部；gaoxiaojob/gaoxiaojob_job/shiyebian/sciencehr）"
+        default: ""
         type: string
 
 permissions:
@@ -28,7 +32,12 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Collect
-        run: python run_collect.py --backfill ${{ github.event.inputs.backfill || '0' }}
+        run: |
+          ARGS="--backfill ${{ github.event.inputs.backfill || '0' }}"
+          if [ -n "${{ github.event.inputs.only }}" ]; then
+            ARGS="$ARGS --only ${{ github.event.inputs.only }}"
+          fi
+          python run_collect.py $ARGS
 
       - name: Build site
         run: python build_site.py
