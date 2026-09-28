@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+collect.log
+gjjob.log
+*.log
+data/*.db-shm
+data/*.db-wal

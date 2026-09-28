@@ -1,0 +1,47 @@
+name: collect-and-build
+
+on:
+  schedule:
+    - cron: "30 0 * * *"   # 每天 08:30 北京时间
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      - name: Collect
+        run: python run_collect.py
+
+      - name: Build site
+        run: python build_site.py
+
+      - name: Commit data & site
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/jobs.db site/index.html
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "daily collect $(date +%F)"
+            git push
+          fi
+
+      - name: Deploy to Pages
+        if: success()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site

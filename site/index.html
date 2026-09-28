@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>海洋化学招聘信息聚合 · 2026</title>
+<style>
+:root{
+  --navy:#0a4d6e; --blue:#0e6ba8; --teal:#0fb9b1;
+  --bg:#f2f7fa; --card:#fff; --line:#e0ecf3;
+  --text:#16324a; --muted:#5b7a8f;
+  --ok:#0a7a3d; --warn:#c2620a; --bad:#b03030;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"PingFang SC","Microsoft YaHei",system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+a{color:var(--blue)}
+
+/* ---------- hero ---------- */
+.hero{position:relative;background:linear-gradient(135deg,#073a56 0%,#0e6ba8 55%,#0fb9b1 130%);color:#fff;padding:46px 20px 66px;text-align:center;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(1200px 400px at 80% -10%,rgba(255,255,255,.14),transparent 60%)}
+.hero h1{font-size:clamp(20px,3.4vw,30px);letter-spacing:1px;position:relative}
+.hero p.sub{margin-top:8px;font-size:13px;opacity:.82;position:relative}
+.stats{display:flex;gap:12px;justify-content:center;margin-top:26px;flex-wrap:wrap;position:relative}
+.stat{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(6px);border-radius:12px;padding:10px 22px;min-width:120px}
+.stat b{display:block;font-size:24px;font-weight:700}
+.stat-qd{background:rgba(255,255,255,.22);border-color:rgba(255,255,255,.5)}
+.stat span{font-size:12px;opacity:.85}
+.wave{position:absolute;bottom:-1px;left:0;width:100%;line-height:0}
+.wave svg{width:100%;height:36px;display:block}
+
+/* ---------- toolbar ---------- */
+.wrap{max-width:960px;margin:-28px auto 0;padding:0 16px 30px;position:relative;z-index:2}
+.toolbar{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 8px 24px rgba(10,77,110,.08);padding:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;position:sticky;top:10px;z-index:10}
+.toolbar .search{flex:1 1 220px;display:flex}
+.toolbar input[type=search]{width:100%;padding:10px 14px;border:1px solid var(--line);border-radius:9px;font-size:14px;outline:none;background:#f8fbfd}
+.toolbar input[type=search]:focus{border-color:var(--blue);background:#fff}
+.seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;background:#f8fbfd;padding:9px 14px;font-size:13px;cursor:pointer;color:var(--muted)}
+.seg button.on{background:var(--blue);color:#fff}
+.toolbar select{padding:9px 10px;border:1px solid var(--line);border-radius:9px;font-size:13px;color:var(--text);background:#f8fbfd;cursor:pointer;outline:none}
+.chips{display:flex;gap:8px;margin:14px 2px 4px;flex-wrap:wrap;align-items:center}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 14px;font-size:12.5px;cursor:pointer;color:var(--muted);transition:.15s}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.count{font-size:12.5px;color:var(--muted);margin:8px 2px 12px}
+
+/* ---------- cards ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:12px;padding:16px 18px;margin-bottom:13px;display:flex;gap:16px;justify-content:space-between;transition:.18s}
+.card:hover{box-shadow:0 10px 26px rgba(10,77,110,.13);transform:translateY(-2px)}
+.card.cat-高校{border-left-color:var(--blue)}
+.card.cat-科研院所{border-left-color:var(--teal)}
+.card.cat-部委事业{border-left-color:#7c5cbf}
+.card.cat-央企国企{border-left-color:#e8a33d}
+.card.cat-其他{border-left-color:#8a9bb0}
+.card.hide{display:none}
+.card-main{flex:1;min-width:0}
+.title{font-size:15.5px;font-weight:650;color:var(--navy);text-decoration:none;word-break:break-all}
+.title:hover{text-decoration:underline}
+.meta{margin-top:7px;font-size:12.8px;color:var(--muted);display:flex;gap:14px;flex-wrap:wrap}
+.meta .m-unit{color:#33566e;font-weight:550}
+.summary{font-size:13px;color:#41586b;margin-top:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tags{margin-top:9px}
+.tag{display:inline-block;font-size:11.5px;border-radius:999px;padding:2px 10px;margin:3px 5px 0 0}
+.t-sub{background:#e7f1f8;color:var(--blue)}
+.t-kw{background:#e9f7ee;color:var(--ok)}
+.card-side{flex:0 0 118px;display:flex;flex-direction:column;align-items:flex-end;gap:7px;font-size:12px;color:var(--muted)}
+.pill{border-radius:999px;padding:2px 11px;font-size:11.5px}
+.cat-pill{background:#eef3f7;color:#4a6478}
+.dl{font-weight:650;font-size:12.5px}
+.dl.open{color:var(--ok)}
+.dl.soon{color:var(--warn)}
+.dl.past{color:var(--bad)}
+.dl.na{color:var(--muted);font-weight:400}
+.pub,.src{font-size:11.5px}
+.new-badge{display:inline-block;background:#0fb9b1;color:#fff;border-radius:999px;font-size:10.5px;padding:1px 8px;margin-left:8px;vertical-align:2px}
+
+.empty{text-align:center;color:var(--muted);padding:60px 0;display:none}
+footer{text-align:center;font-size:12px;color:#8ba0b0;padding:26px 16px 46px;line-height:1.9}
+footer a{color:#6d8fa5}
+
+@media (max-width:640px){
+  .card{flex-direction:column}
+  .card-side{flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <h1>海洋化学招聘信息聚合 · 2026</h1>
+  <p class="sub">自动聚合高校人才网 / 科学人才网公开信息 · 每日更新 · 以各单位官方公告为准</p>
+  <div class="stats">
+    <div class="stat"><b>51</b><span>岗位总数</span></div>
+    <div class="stat"><b>51</b><span>本周新增</span></div>
+    <div class="stat"><b>38</b><span>报名中</span></div>
+    <div class="stat"><b>2</b><span>7天内截止</span></div>
+    <div class="stat stat-qd"><b>13</b><span>青岛在招</span></div>
+  </div>
+  <div class="wave"><svg viewBox="0 0 1440 36" preserveAspectRatio="none"><path d="M0,20 C240,40 480,0 720,16 C960,32 1200,8 1440,20 L1440,36 L0,36 Z" fill="#f2f7fa"></path></svg></div>
+</header>
+
+<div class="wrap">
+  <div class="toolbar">
+    <div class="search"><input id="q" type="search" placeholder="搜索：方向 / 单位 / 地点 / 关键词…"></div>
+    <div class="seg" id="status">
+      <button data-v="all" class="on">全部</button>
+      <button data-v="open">报名中</button>
+      <button data-v="expired">已截止</button>
+    </div>
+    <select id="city"><option value="">全部城市</option><option>上海</option><option>北京</option><option>北海</option><option>南京</option><option>厦门</option><option>天津</option><option>广州</option><option>济南</option><option>海口</option><option>深圳</option><option>舟山</option><option>苏州</option><option>西安</option><option>青岛</option></select>
+    <select id="province"><option value="">全部省份</option><option>上海</option><option>北京</option><option>天津</option><option>山东</option><option>山东,</option><option>广东</option><option>广西</option><option>江苏</option><option>浙江</option><option>海南</option><option>福建</option><option>陕西</option></select>
+    <select id="degree"><option value="">全部学历</option><option>博士</option><option>博士研究生</option><option>本科及以上</option><option>硕士研究生及以上</option></select>
+    <select id="source"><option value="">全部来源</option><option>gaoxiaojob_job</option><option>shiyebian</option><option>科学人才网</option><option>高校人才网</option></select>
+    <select id="sort">
+      <option value="pub">最新发布</option>
+      <option value="deadline">截止临近</option>
+    </select>
+  </div>
+
+  <div class="chips" id="cats">
+    <button class="chip on" data-v="">全部类型</button>
+    <button class="chip" data-v="高校">高校</button>
+    <button class="chip" data-v="科研院所">科研院所</button>
+    <button class="chip" data-v="部委事业">部委/海洋局系统</button>
+    <button class="chip" data-v="央企国企">央企国企</button>
+    <button class="chip" data-v="其他">其他</button>
+  </div>
+
+  <div class="count" id="count"></div>
+  <div id="list"><article class="card cat-高校" data-cat="高校"
+    data-province="天津" data-city="天津" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="2026-11-15"
+    data-hasdl="1" data-pub="2026-09-21"
+    data-text="天津大学地球系统科学学院2026年9月招聘1名助理研究员 天津大学地球系统科学学院 天津  基本信息 发布时间：2026-09-21 截止日期：2026-11-15 学历要求：博士研究生 所属省份： 天津 工作地点： 天津 报名方式： 网上系统 栏目分类： 高校招聘 天津高校 天津科研 需求学科（供参考）： 环境科学与工程 , 农业与农业资源利用 , 生态学 , 大气科学 , 水利工程 展开 公告详情 地球系">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/432880.html" target="_blank" rel="noopener">天津大学地球系统科学学院2026年9月招聘1名助理研究员</a>
+    <div class="meta">
+      <span class="m-unit">天津大学地球系统科学学院</span>
+      <span class="m-loc">天津</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-21 截止日期：2026-11-15 学历要求：博士研究生 所属省份： 天津 工作地点： 天津 报名方式： 网上系统 栏目分类： 高校招聘 天津高校 天津科研 需求学科（供参考）： 环境科学与工程 , 农业与农业资源利用 , 生态学 , 大气科学 , 水利工程 展开 公告详情 地球系&hellip;</p>
+    <div class="tags"><span class="tag t-kw">生物地球化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-11-15" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-21</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="江苏" data-city="南京" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="2026-10-01"
+    data-hasdl="1" data-pub="2026-09-20"
+    data-text="南京大学地球科学与工程学院2026年招聘研究系列人员（含博士后）启事 南京大学地球科学与工程学院 南京  基本信息 发布时间：2026-09-20 截止日期：2026-10-01 学历要求：博士研究生 所属省份： 江苏 工作地点： 南京 报名方式： 电子邮件 栏目分类： 高校招聘 江苏高校 南京高校 需求学科（供参考）： 水利工程 , 地质学 , 地球物理学 , 矿业工程 , 地质资源与地质工程 , 人工智能 展开 公告详">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/432549.html" target="_blank" rel="noopener">南京大学地球科学与工程学院2026年招聘研究系列人员（含博士后）启事</a>
+    <div class="meta">
+      <span class="m-unit">南京大学地球科学与工程学院</span>
+      <span class="m-loc">南京</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-20 截止日期：2026-10-01 学历要求：博士研究生 所属省份： 江苏 工作地点： 南京 报名方式： 电子邮件 栏目分类： 高校招聘 江苏高校 南京高校 需求学科（供参考）： 水利工程 , 地质学 , 地球物理学 , 矿业工程 , 地质资源与地质工程 , 人工智能 展开 公告详&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋地球化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-10-01" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-20</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-科研院所" data-cat="科研院所"
+    data-province="山东," data-city="南京" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-18"
+    data-text="生态环境部南京环境科学研究所（自然保护地研究中心）2026年诚招博士后 生态环境部南京环境科学研究所（自然保护地研究中心） 烟台,  基本信息 发布时间：2026-09-18 截止日期：详见正文 学历要求：博士研究生 所属省份： 山东, 江苏 工作地点： 烟台, 南京 报名方式： 其他 栏目分类： 科技人才 江苏科研 山东科研 南京科研 需求学科（供参考）： 作物学 , 生态学 , 林学 展开 公告详情 一、 博士后单位：生态环境部南京环境科学研究所">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/432064.html" target="_blank" rel="noopener">生态环境部南京环境科学研究所（自然保护地研究中心）2026年诚招博士后</a>
+    <div class="meta">
+      <span class="m-unit">生态环境部南京环境科学研究所（自然保护地研究中心）</span>
+      <span class="m-loc">烟台,</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-18 截止日期：详见正文 学历要求：博士研究生 所属省份： 山东, 江苏 工作地点： 烟台, 南京 报名方式： 其他 栏目分类： 科技人才 江苏科研 山东科研 南京科研 需求学科（供参考）： 作物学 , 生态学 , 林学 展开 公告详情 一、 博士后单位：生态环境部南京环境科学研究所&hellip;</p>
+    <div class="tags"><span class="tag t-kw">生物地球化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">科研院所</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-18</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="山东" data-city="青岛" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="2026-11-23"
+    data-hasdl="1" data-pub="2026-09-17"
+    data-text="中国海洋大学海洋化学理论与工程技术教育部重点实验室2026年招聘卓越博士后公告 中国海洋大学海洋化学理论与工程技术教育部重点实验室 青岛  基本信息 发布时间：2026-09-17 截止日期：2026-11-23 学历要求：博士研究生 所属省份： 山东 工作地点： 青岛 报名方式： 其他 栏目分类： 高校招聘 山东高校 需求学科（供参考）： 海洋科学 展开 公告详情 此招聘信息由中国海洋大学发布的《中国海洋大学2026年卓越博士后招聘公告》延伸。为助您快速">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431810.html" target="_blank" rel="noopener">中国海洋大学海洋化学理论与工程技术教育部重点实验室2026年招聘卓越博士后公告</a>
+    <div class="meta">
+      <span class="m-unit">中国海洋大学海洋化学理论与工程技术教育部重点实验室</span>
+      <span class="m-loc">青岛</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-17 截止日期：2026-11-23 学历要求：博士研究生 所属省份： 山东 工作地点： 青岛 报名方式： 其他 栏目分类： 高校招聘 山东高校 需求学科（供参考）： 海洋科学 展开 公告详情 此招聘信息由中国海洋大学发布的《中国海洋大学2026年卓越博士后招聘公告》延伸。为助您快速&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-11-23" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-17</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="山东" data-city="济南" data-degree="本科及以上"
+    data-source="高校人才网" data-deadline="2026-09-23"
+    data-hasdl="1" data-pub="2026-09-17"
+    data-text="山东大学海洋研究院海洋工程装备技术研究团队2026年9月招聘2名科研助理公告 山东大学海洋研究院海洋工程装备技术研究团队 济南  基本信息 发布时间：2026-09-17 截止日期：2026-09-23 学历要求：本科及以上 所属省份： 山东 工作地点： 济南 报名方式： 电子邮件 栏目分类： 高校招聘 山东高校 山东科研 需求学科（供参考）： 展开 公告详情 山东大学海洋研究院海洋工程装备技术研究团队根据科研工作需要，经学校批准，现面向社会公开">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431770.html" target="_blank" rel="noopener">山东大学海洋研究院海洋工程装备技术研究团队2026年9月招聘2名科研助理公告</a>
+    <div class="meta">
+      <span class="m-unit">山东大学海洋研究院海洋工程装备技术研究团队</span>
+      <span class="m-loc">济南</span>
+      <span class="m-deg">本科及以上</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-17 截止日期：2026-09-23 学历要求：本科及以上 所属省份： 山东 工作地点： 济南 报名方式： 电子邮件 栏目分类： 高校招聘 山东高校 山东科研 需求学科（供参考）： 展开 公告详情 山东大学海洋研究院海洋工程装备技术研究团队根据科研工作需要，经学校批准，现面向社会公开&hellip;</p>
+    <div class="tags"><span class="tag t-kw">机构+化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-09-23" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-17</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-科研院所" data-cat="科研院所"
+    data-province="海南" data-city="海口" data-degree="本科及以上"
+    data-source="高校人才网" data-deadline="2026-09-22"
+    data-hasdl="1" data-pub="2026-09-17"
+    data-text="海南省绿色低碳发展研究院2026年9月补充招聘2名工作人员公告 海南省绿色低碳发展研究院 海口  基本信息 发布时间：2026-09-17 截止日期：2026-09-22 学历要求：本科及以上 所属省份： 海南 工作地点： 海口 报名方式： 电子邮件 栏目分类： 科技人才 海南科研 需求学科（供参考）： 展开 公告详情 海南省绿色低碳发展研究院（简称&quot;绿研院&quot;）于2025年12月14日正式揭牌成立。作为住房和城乡建">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431748.html" target="_blank" rel="noopener">海南省绿色低碳发展研究院2026年9月补充招聘2名工作人员公告</a>
+    <div class="meta">
+      <span class="m-unit">海南省绿色低碳发展研究院</span>
+      <span class="m-loc">海口</span>
+      <span class="m-deg">本科及以上</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-17 截止日期：2026-09-22 学历要求：本科及以上 所属省份： 海南 工作地点： 海口 报名方式： 电子邮件 栏目分类： 科技人才 海南科研 需求学科（供参考）： 展开 公告详情 海南省绿色低碳发展研究院（简称&quot;绿研院&quot;）于2025年12月14日正式揭牌成立。作为住房和城乡建&hellip;</p>
+    <div class="tags"><span class="tag t-kw">蓝碳</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">科研院所</span>
+    <span class="dl" data-dl="2026-09-22" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-17</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="天津" data-city="天津" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="2026-10-27"
+    data-hasdl="1" data-pub="2026-09-16"
+    data-text="天津大学2026年下半年博士人才全国巡回招聘会暨博士后招收对接会 天津大学 天津  基本信息 发布时间：2026-09-16 截止日期：2026-10-27 学历要求：博士研究生 所属省份： 天津 工作地点： 天津 报名方式： 网上系统 栏目分类： 高端人才 天津高校 需求学科（供参考）： 药学 , 材料科学与工程 , 翻译 , 化学工程与技术 , 基础医学 , 临床医学 , 口腔医学 , 公共卫生与">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431319.html" target="_blank" rel="noopener">天津大学2026年下半年博士人才全国巡回招聘会暨博士后招收对接会</a>
+    <div class="meta">
+      <span class="m-unit">天津大学</span>
+      <span class="m-loc">天津</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-16 截止日期：2026-10-27 学历要求：博士研究生 所属省份： 天津 工作地点： 天津 报名方式： 网上系统 栏目分类： 高端人才 天津高校 需求学科（供参考）： 药学 , 材料科学与工程 , 翻译 , 化学工程与技术 , 基础医学 , 临床医学 , 口腔医学 , 公共卫生与&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-10-27" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-16</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="海南" data-city="海口" data-degree="本科及以上"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-15"
+    data-text="海南大学海洋生态环境与人类健康团队2026年招聘1名科研助理公告 海南大学海洋生态环境与人类健康团队 海口  基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：本科及以上 所属省份： 海南 工作地点： 海口 报名方式： 电子邮件 栏目分类： 高校招聘 海南高校 海南科研 需求学科（供参考）： 展开 公告详情 一、岗位 海南大学 &quot; 海洋生态环境与人类健康 &quot; 团队科研助理（ 1 名） 二、岗位职责 协助团">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431157.html" target="_blank" rel="noopener">海南大学海洋生态环境与人类健康团队2026年招聘1名科研助理公告</a>
+    <div class="meta">
+      <span class="m-unit">海南大学海洋生态环境与人类健康团队</span>
+      <span class="m-loc">海口</span>
+      <span class="m-deg">本科及以上</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：本科及以上 所属省份： 海南 工作地点： 海口 报名方式： 电子邮件 栏目分类： 高校招聘 海南高校 海南科研 需求学科（供参考）： 展开 公告详情 一、岗位 海南大学 &quot; 海洋生态环境与人类健康 &quot; 团队科研助理（ 1 名） 二、岗位职责 协助团&hellip;</p>
+    <div class="tags"><span class="tag t-kw">生物地球化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-15</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="北京" data-city="北京" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="2026-09-25"
+    data-hasdl="1" data-pub="2026-09-15"
+    data-text="中国科学院地理科学与资源研究所2026年9月招聘1名地表水土过程中元素迁移及其化学行为研究高端人才启事 中国科学院地理科学与资源研究所 北京  基本信息 发布时间：2026-09-15 截止日期：2026-09-25 学历要求：博士研究生 所属省份： 北京 工作地点： 北京 报名方式： 电子邮件 栏目分类： 科技人才 北京科研 需求学科（供参考）： 环境科学与工程 , 作物学 , 园艺学 , 农业与农业资源利用 , 植物保护 , 畜牧学 , 兽医学 , 林学 ">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431079.html" target="_blank" rel="noopener">中国科学院地理科学与资源研究所2026年9月招聘1名地表水土过程中元素迁移及其化学行为研究高端人才启事</a>
+    <div class="meta">
+      <span class="m-unit">中国科学院地理科学与资源研究所</span>
+      <span class="m-loc">北京</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-15 截止日期：2026-09-25 学历要求：博士研究生 所属省份： 北京 工作地点： 北京 报名方式： 电子邮件 栏目分类： 科技人才 北京科研 需求学科（供参考）： 环境科学与工程 , 作物学 , 园艺学 , 农业与农业资源利用 , 植物保护 , 畜牧学 , 兽医学 , 林学 &hellip;</p>
+    <div class="tags"><span class="tag t-kw">生物地球化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-09-25" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-15</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="陕西" data-city="西安" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-15"
+    data-text="西北工业大学海洋研究院（顾花朵合作导师）2026年招聘博士后公告 西北工业大学海洋研究院（顾花朵合作导师） 西安  基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431054.html" target="_blank" rel="noopener">西北工业大学海洋研究院（顾花朵合作导师）2026年招聘博士后公告</a>
+    <div class="meta">
+      <span class="m-unit">西北工业大学海洋研究院（顾花朵合作导师）</span>
+      <span class="m-loc">西安</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学&hellip;</p>
+    <div class="tags"><span class="tag t-kw">机构+化学</span><span class="tag t-kw">海洋传感器</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-15</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="陕西" data-city="西安" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-15"
+    data-text="西北工业大学海洋研究院（陈东阳合作导师）2026年招聘博士后公告 西北工业大学海洋研究院（陈东阳合作导师） 西安  基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431053.html" target="_blank" rel="noopener">西北工业大学海洋研究院（陈东阳合作导师）2026年招聘博士后公告</a>
+    <div class="meta">
+      <span class="m-unit">西北工业大学海洋研究院（陈东阳合作导师）</span>
+      <span class="m-loc">西安</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学&hellip;</p>
+    <div class="tags"><span class="tag t-kw">机构+化学</span><span class="tag t-kw">海洋传感器</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-15</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="陕西" data-city="西安" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-15"
+    data-text="西北工业大学海洋研究院（金思雅合作导师）2026年招聘博士后公告 西北工业大学海洋研究院（金思雅合作导师） 西安  基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431052.html" target="_blank" rel="noopener">西北工业大学海洋研究院（金思雅合作导师）2026年招聘博士后公告</a>
+    <div class="meta">
+      <span class="m-unit">西北工业大学海洋研究院（金思雅合作导师）</span>
+      <span class="m-loc">西安</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学&hellip;</p>
+    <div class="tags"><span class="tag t-kw">机构+化学</span><span class="tag t-kw">海洋传感器</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-15</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="陕西" data-city="西安" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-15"
+    data-text="西北工业大学海洋研究院（郭兵勇合作导师）2026年招聘博士后公告 西北工业大学海洋研究院（郭兵勇合作导师） 西安  基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431051.html" target="_blank" rel="noopener">西北工业大学海洋研究院（郭兵勇合作导师）2026年招聘博士后公告</a>
+    <div class="meta">
+      <span class="m-unit">西北工业大学海洋研究院（郭兵勇合作导师）</span>
+      <span class="m-loc">西安</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学&hellip;</p>
+    <div class="tags"><span class="tag t-kw">机构+化学</span><span class="tag t-kw">海洋传感器</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-15</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="陕西" data-city="西安" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-15"
+    data-text="西北工业大学海洋研究院（程景广合作导师）2026年招聘博士后公告 西北工业大学海洋研究院（程景广合作导师） 西安  基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431050.html" target="_blank" rel="noopener">西北工业大学海洋研究院（程景广合作导师）2026年招聘博士后公告</a>
+    <div class="meta">
+      <span class="m-unit">西北工业大学海洋研究院（程景广合作导师）</span>
+      <span class="m-loc">西安</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学&hellip;</p>
+    <div class="tags"><span class="tag t-kw">机构+化学</span><span class="tag t-kw">海洋传感器</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-15</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="陕西" data-city="西安" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-15"
+    data-text="西北工业大学海洋研究院（廖方楼合作导师）2026年招聘博士后公告 西北工业大学海洋研究院（廖方楼合作导师） 西安  基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431049.html" target="_blank" rel="noopener">西北工业大学海洋研究院（廖方楼合作导师）2026年招聘博士后公告</a>
+    <div class="meta">
+      <span class="m-unit">西北工业大学海洋研究院（廖方楼合作导师）</span>
+      <span class="m-loc">西安</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学&hellip;</p>
+    <div class="tags"><span class="tag t-kw">机构+化学</span><span class="tag t-kw">海洋传感器</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-15</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="陕西" data-city="西安" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-15"
+    data-text="西北工业大学海洋研究院（周星月合作导师）2026年招聘博士后公告 西北工业大学海洋研究院（周星月合作导师） 西安  基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431048.html" target="_blank" rel="noopener">西北工业大学海洋研究院（周星月合作导师）2026年招聘博士后公告</a>
+    <div class="meta">
+      <span class="m-unit">西北工业大学海洋研究院（周星月合作导师）</span>
+      <span class="m-loc">西安</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学&hellip;</p>
+    <div class="tags"><span class="tag t-kw">机构+化学</span><span class="tag t-kw">海洋传感器</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-15</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="陕西" data-city="西安" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-15"
+    data-text="西北工业大学海洋研究院（刘芳华合作导师）2026年招聘博士后公告 西北工业大学海洋研究院（刘芳华合作导师） 西安  基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431047.html" target="_blank" rel="noopener">西北工业大学海洋研究院（刘芳华合作导师）2026年招聘博士后公告</a>
+    <div class="meta">
+      <span class="m-unit">西北工业大学海洋研究院（刘芳华合作导师）</span>
+      <span class="m-loc">西安</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-15 截止日期：详见正文 学历要求：博士研究生 所属省份： 陕西 工作地点： 西安 报名方式： 其他 栏目分类： 高校招聘 陕西高校 西安高校 需求学科（供参考）： 船舶与海洋工程 , 软件工程 , 人工智能 , 计算机科学与技术 , 物理学 , 大气科学 , 海洋科学 , 环境科学&hellip;</p>
+    <div class="tags"><span class="tag t-kw">机构+化学</span><span class="tag t-kw">海洋传感器</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-15</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="福建" data-city="厦门" data-degree="硕士研究生及以上"
+    data-source="高校人才网" data-deadline="2026-10-15"
+    data-hasdl="1" data-pub="2026-09-15"
+    data-text="厦门大学海洋生态生理学与生物地球化学课题组2026年招聘1名科研助理启事 厦门大学海洋生态生理学与生物地球化学课题组 厦门  基本信息 发布时间：2026-09-15 截止日期：2026-10-15 学历要求：硕士研究生及以上 所属省份： 福建 工作地点： 厦门 报名方式： 电子邮件 栏目分类： 高校招聘 福建高校 福建科研 需求学科（供参考）： 化学 , 生物学 , 生态学 , 生物工程 , 海洋科学 , 环境科学与工程 展开 公告详情 厦">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/431013.html" target="_blank" rel="noopener">厦门大学海洋生态生理学与生物地球化学课题组2026年招聘1名科研助理启事</a>
+    <div class="meta">
+      <span class="m-unit">厦门大学海洋生态生理学与生物地球化学课题组</span>
+      <span class="m-loc">厦门</span>
+      <span class="m-deg">硕士研究生及以上</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-15 截止日期：2026-10-15 学历要求：硕士研究生及以上 所属省份： 福建 工作地点： 厦门 报名方式： 电子邮件 栏目分类： 高校招聘 福建高校 福建科研 需求学科（供参考）： 化学 , 生物学 , 生态学 , 生物工程 , 海洋科学 , 环境科学与工程 展开 公告详情 厦&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋生物地球化学</span><span class="tag t-kw">生物地球化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-10-15" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-15</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="江苏" data-city="苏州" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-14"
+    data-text="西北工业大学海洋研究院（杨坤德合作导师）2026年招聘博士后公告 西北工业大学海洋研究院（杨坤德合作导师） 苏州  基本信息 发布时间：2026-09-14 截止日期：详见正文 学历要求：博士研究生 所属省份： 江苏 工作地点： 苏州 报名方式： 其他 栏目分类： 高校招聘 江苏高校 需求学科（供参考）： 船舶与海洋工程 , 海洋科学 , 环境科学与工程 , 信息与通信工程 , 大气科学 , 物理学 , 计算机科学与技术 , 电子科">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/430891.html" target="_blank" rel="noopener">西北工业大学海洋研究院（杨坤德合作导师）2026年招聘博士后公告</a>
+    <div class="meta">
+      <span class="m-unit">西北工业大学海洋研究院（杨坤德合作导师）</span>
+      <span class="m-loc">苏州</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-14 截止日期：详见正文 学历要求：博士研究生 所属省份： 江苏 工作地点： 苏州 报名方式： 其他 栏目分类： 高校招聘 江苏高校 需求学科（供参考）： 船舶与海洋工程 , 海洋科学 , 环境科学与工程 , 信息与通信工程 , 大气科学 , 物理学 , 计算机科学与技术 , 电子科&hellip;</p>
+    <div class="tags"><span class="tag t-kw">机构+化学</span><span class="tag t-kw">海洋传感器</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-14</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="江苏" data-city="苏州" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-14"
+    data-text="西北工业大学海洋研究院（景连友合作导师）2026年招聘博士后公告 西北工业大学海洋研究院（景连友合作导师） 苏州  基本信息 发布时间：2026-09-14 截止日期：详见正文 学历要求：博士研究生 所属省份： 江苏 工作地点： 苏州 报名方式： 其他 栏目分类： 高校招聘 江苏高校 需求学科（供参考）： 船舶与海洋工程 , 海洋科学 , 环境科学与工程 , 信息与通信工程 , 大气科学 , 物理学 , 计算机科学与技术 , 电子科">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/430890.html" target="_blank" rel="noopener">西北工业大学海洋研究院（景连友合作导师）2026年招聘博士后公告</a>
+    <div class="meta">
+      <span class="m-unit">西北工业大学海洋研究院（景连友合作导师）</span>
+      <span class="m-loc">苏州</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-14 截止日期：详见正文 学历要求：博士研究生 所属省份： 江苏 工作地点： 苏州 报名方式： 其他 栏目分类： 高校招聘 江苏高校 需求学科（供参考）： 船舶与海洋工程 , 海洋科学 , 环境科学与工程 , 信息与通信工程 , 大气科学 , 物理学 , 计算机科学与技术 , 电子科&hellip;</p>
+    <div class="tags"><span class="tag t-kw">机构+化学</span><span class="tag t-kw">海洋传感器</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-14</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="江苏" data-city="苏州" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-14"
+    data-text="西北工业大学海洋研究院（史文涛合作导师）2026年招聘博士后公告 西北工业大学海洋研究院（史文涛合作导师） 苏州  基本信息 发布时间：2026-09-14 截止日期：详见正文 学历要求：博士研究生 所属省份： 江苏 工作地点： 苏州 报名方式： 其他 栏目分类： 高校招聘 江苏高校 需求学科（供参考）： 船舶与海洋工程 , 海洋科学 , 专业未分类 , 计算机科学与技术 , 信息与通信工程 , 物理学 , 电子科学与技术 , 软件">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/430889.html" target="_blank" rel="noopener">西北工业大学海洋研究院（史文涛合作导师）2026年招聘博士后公告</a>
+    <div class="meta">
+      <span class="m-unit">西北工业大学海洋研究院（史文涛合作导师）</span>
+      <span class="m-loc">苏州</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-14 截止日期：详见正文 学历要求：博士研究生 所属省份： 江苏 工作地点： 苏州 报名方式： 其他 栏目分类： 高校招聘 江苏高校 需求学科（供参考）： 船舶与海洋工程 , 海洋科学 , 专业未分类 , 计算机科学与技术 , 信息与通信工程 , 物理学 , 电子科学与技术 , 软件&hellip;</p>
+    <div class="tags"><span class="tag t-kw">机构+化学</span><span class="tag t-kw">海洋传感器</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-14</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="广西" data-city="北海" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="2026-11-30"
+    data-hasdl="1" data-pub="2026-09-14"
+    data-text="广西海洋科学院2026年度第一批与企业联合引才专项招聘13名高层次人才公告 广西海洋科学院 南宁,  基本信息 发布时间：2026-09-14 截止日期：2026-11-30 学历要求：博士研究生 所属省份： 广西 工作地点： 南宁, 北海 报名方式： 电子邮件 栏目分类： 科技人才 广西科研 需求学科（供参考）： 生物学 , 生物工程 , 农业工程 , 海洋科学 , 生物医学工程 , 计算机科学与技术 , 地质学 ,">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/430870.html" target="_blank" rel="noopener">广西海洋科学院2026年度第一批与企业联合引才专项招聘13名高层次人才公告</a>
+    <div class="meta">
+      <span class="m-unit">广西海洋科学院</span>
+      <span class="m-loc">南宁,</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-14 截止日期：2026-11-30 学历要求：博士研究生 所属省份： 广西 工作地点： 南宁, 北海 报名方式： 电子邮件 栏目分类： 科技人才 广西科研 需求学科（供参考）： 生物学 , 生物工程 , 农业工程 , 海洋科学 , 生物医学工程 , 计算机科学与技术 , 地质学 ,&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋腐蚀</span><span class="tag t-kw">海洋药物</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-11-30" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-14</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="广东" data-city="上海" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="2026-11-14"
+    data-hasdl="1" data-pub="2026-09-14"
+    data-text="深圳海洋大学（筹）/南方科技大学海洋高等研究院高校人才网2026年下半年在站/出站博士后与归国博士（上海）交流会 深圳海洋大学（筹）/南方科技大学海洋高等研究院高校人才网 深圳  基本信息 发布时间：2026-09-14 截止日期：2026-11-14 学历要求：博士研究生 所属省份： 广东 工作地点： 深圳 报名方式： 网上系统 栏目分类： 高端人才 广东高校 广东科研 深圳高校 深圳科研 需求学科（供参考）： 药学 , 化学 , 力学 , 生物学 , 物理学 , 地理学 , 土木工程与土木水">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/430664.html" target="_blank" rel="noopener">深圳海洋大学（筹）/南方科技大学海洋高等研究院高校人才网2026年下半年在站/出站博士后与归国博士（上海）交流会</a>
+    <div class="meta">
+      <span class="m-unit">深圳海洋大学（筹）/南方科技大学海洋高等研究院高校人才网</span>
+      <span class="m-loc">深圳</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-14 截止日期：2026-11-14 学历要求：博士研究生 所属省份： 广东 工作地点： 深圳 报名方式： 网上系统 栏目分类： 高端人才 广东高校 广东科研 深圳高校 深圳科研 需求学科（供参考）： 药学 , 化学 , 力学 , 生物学 , 物理学 , 地理学 , 土木工程与土木水&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-11-14" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-14</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="广东" data-city="深圳" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="2026-11-07"
+    data-hasdl="1" data-pub="2026-09-14"
+    data-text="深圳海洋大学（筹）/南方科技大学海洋高等研究院高校人才网2026年下半年深圳·香港博士博士后跨境人才峰会 深圳海洋大学（筹）/南方科技大学海洋高等研究院高校人才网 深圳  基本信息 发布时间：2026-09-14 截止日期：2026-11-07 学历要求：博士研究生 所属省份： 广东 工作地点： 深圳 报名方式： 网上系统 栏目分类： 高端人才 广东高校 广东科研 深圳高校 深圳科研 需求学科（供参考）： 药学 , 化学 , 力学 , 生物学 , 物理学 , 地理学 , 土木工程与土木水">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/430651.html" target="_blank" rel="noopener">深圳海洋大学（筹）/南方科技大学海洋高等研究院高校人才网2026年下半年深圳·香港博士博士后跨境人才峰会</a>
+    <div class="meta">
+      <span class="m-unit">深圳海洋大学（筹）/南方科技大学海洋高等研究院高校人才网</span>
+      <span class="m-loc">深圳</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-14 截止日期：2026-11-07 学历要求：博士研究生 所属省份： 广东 工作地点： 深圳 报名方式： 网上系统 栏目分类： 高端人才 广东高校 广东科研 深圳高校 深圳科研 需求学科（供参考）： 药学 , 化学 , 力学 , 生物学 , 物理学 , 地理学 , 土木工程与土木水&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-11-07" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-14</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="广东" data-city="深圳" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="2026-10-27"
+    data-hasdl="1" data-pub="2026-09-14"
+    data-text="深圳海洋大学（筹）/南方科技大学海洋高等研究院2026年下半年博士人才全国巡回招聘会暨博士后招收对接会 深圳海洋大学（筹）/南方科技大学海洋高等研究院 深圳  基本信息 发布时间：2026-09-14 截止日期：2026-10-27 学历要求：博士研究生 所属省份： 广东 工作地点： 深圳 报名方式： 网上系统 栏目分类： 高端人才 广东高校 广东科研 深圳高校 深圳科研 需求学科（供参考）： 药学 , 化学 , 力学 , 生物学 , 物理学 , 地理学 , 土木工程与土木水">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/430629.html" target="_blank" rel="noopener">深圳海洋大学（筹）/南方科技大学海洋高等研究院2026年下半年博士人才全国巡回招聘会暨博士后招收对接会</a>
+    <div class="meta">
+      <span class="m-unit">深圳海洋大学（筹）/南方科技大学海洋高等研究院</span>
+      <span class="m-loc">深圳</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-14 截止日期：2026-10-27 学历要求：博士研究生 所属省份： 广东 工作地点： 深圳 报名方式： 网上系统 栏目分类： 高端人才 广东高校 广东科研 深圳高校 深圳科研 需求学科（供参考）： 药学 , 化学 , 力学 , 生物学 , 物理学 , 地理学 , 土木工程与土木水&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-10-27" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-14</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="福建" data-city="厦门" data-degree="硕士研究生及以上"
+    data-source="高校人才网" data-deadline="2026-10-15"
+    data-hasdl="1" data-pub="2026-09-14"
+    data-text="厦门大学海洋生物地球化学全国重点实验室史大林、洪海征课题组2026年9月招聘1名科研助理启事 厦门大学海洋生物地球化学全国重点实验室史大林、洪海征课题组 厦门  基本信息 发布时间：2026-09-14 截止日期：2026-10-15 学历要求：硕士研究生及以上 所属省份： 福建 工作地点： 厦门 报名方式： 电子邮件 栏目分类： 高校招聘 福建高校 福建科研 需求学科（供参考）： 海洋科学 , 化学 , 生物学 展开 公告详情 厦门大学海洋生物地球化学全国重点实验室史大林教授">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/430577.html" target="_blank" rel="noopener">厦门大学海洋生物地球化学全国重点实验室史大林、洪海征课题组2026年9月招聘1名科研助理启事</a>
+    <div class="meta">
+      <span class="m-unit">厦门大学海洋生物地球化学全国重点实验室史大林、洪海征课题组</span>
+      <span class="m-loc">厦门</span>
+      <span class="m-deg">硕士研究生及以上</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-14 截止日期：2026-10-15 学历要求：硕士研究生及以上 所属省份： 福建 工作地点： 厦门 报名方式： 电子邮件 栏目分类： 高校招聘 福建高校 福建科研 需求学科（供参考）： 海洋科学 , 化学 , 生物学 展开 公告详情 厦门大学海洋生物地球化学全国重点实验室史大林教授&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋化学</span><span class="tag t-kw">海洋生物地球化学</span><span class="tag t-kw">生物地球化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-10-15" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-14</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="广东" data-city="广州" data-degree="硕士研究生及以上"
+    data-source="高校人才网" data-deadline="2026-09-22"
+    data-hasdl="1" data-pub="2026-09-10"
+    data-text="中国科学院南海海洋研究所资产财务处2026年9月招聘1名财务主管启事 中国科学院南海海洋研究所资产财务处 广州  基本信息 发布时间：2026-09-10 截止日期：2026-09-22 学历要求：硕士研究生及以上 所属省份： 广东 工作地点： 广州 报名方式： 电子邮件 栏目分类： 科技人才 广东科研 广州科研 需求学科（供参考）： 审计 , 工商管理 , 应用经济学 展开 公告详情 中国科学院南海海洋研究所成立于 1959 年">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/430000.html" target="_blank" rel="noopener">中国科学院南海海洋研究所资产财务处2026年9月招聘1名财务主管启事</a>
+    <div class="meta">
+      <span class="m-unit">中国科学院南海海洋研究所资产财务处</span>
+      <span class="m-loc">广州</span>
+      <span class="m-deg">硕士研究生及以上</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-10 截止日期：2026-09-22 学历要求：硕士研究生及以上 所属省份： 广东 工作地点： 广州 报名方式： 电子邮件 栏目分类： 科技人才 广东科研 广州科研 需求学科（供参考）： 审计 , 工商管理 , 应用经济学 展开 公告详情 中国科学院南海海洋研究所成立于 1959 年&hellip;</p>
+    <div class="tags"><span class="tag t-kw">机构+化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-09-22" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-10</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-部委事业" data-cat="部委事业"
+    data-province="山东" data-city="青岛" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="2026-11-07"
+    data-hasdl="1" data-pub="2026-09-10"
+    data-text="山东省科学院海洋仪器仪表研究所&amp;齐鲁工业大学海洋技术科学学部高校人才网2026年下半年深圳·香港博士博士后跨境人才峰会 山东省科学院海洋仪器仪表研究所&amp;齐鲁工业大学海洋技术科学学部高校人才网 青岛  基本信息 发布时间：2026-09-10 截止日期：2026-11-07 学历要求：博士研究生 所属省份： 山东 工作地点： 青岛 报名方式： 网上系统 栏目分类： 高端人才 山东科研 需求学科（供参考）： 力学 , 化学 , 地理学 , 生物学 , 生态学 , 物理学 , 水利工程 , 生物工程 , 软件工程 , 光">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/429759.html" target="_blank" rel="noopener">山东省科学院海洋仪器仪表研究所&amp;齐鲁工业大学海洋技术科学学部高校人才网2026年下半年深圳·香港博士博士后跨境人才峰会</a>
+    <div class="meta">
+      <span class="m-unit">山东省科学院海洋仪器仪表研究所&amp;齐鲁工业大学海洋技术科学学部高校人才网</span>
+      <span class="m-loc">青岛</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-10 截止日期：2026-11-07 学历要求：博士研究生 所属省份： 山东 工作地点： 青岛 报名方式： 网上系统 栏目分类： 高端人才 山东科研 需求学科（供参考）： 力学 , 化学 , 地理学 , 生物学 , 生态学 , 物理学 , 水利工程 , 生物工程 , 软件工程 , 光&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋传感器</span><span class="tag t-kw">海洋化学</span><span class="tag t-kw">海洋监测</span><span class="tag t-kw">海洋观测</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">部委事业</span>
+    <span class="dl" data-dl="2026-11-07" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-10</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="江苏" data-city="南京" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-10"
+    data-text="南京信息工程大学生态与应用气象学院2026年面向全球诚邀师资博士后（20260907） 南京信息工程大学生态与应用气象学院 南京  基本信息 发布时间：2026-09-10 截止日期：详见正文 学历要求：博士研究生 所属省份： 江苏 工作地点： 南京 报名方式： 其他 栏目分类： 高校招聘 江苏高校 南京高校 需求学科（供参考）： 作物学 , 园艺学 , 农业与农业资源利用 , 植物保护 , 畜牧学 , 兽医学 , 林学 , 水产 , 草学 , 地">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/429728.html" target="_blank" rel="noopener">南京信息工程大学生态与应用气象学院2026年面向全球诚邀师资博士后（20260907）</a>
+    <div class="meta">
+      <span class="m-unit">南京信息工程大学生态与应用气象学院</span>
+      <span class="m-loc">南京</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-10 截止日期：详见正文 学历要求：博士研究生 所属省份： 江苏 工作地点： 南京 报名方式： 其他 栏目分类： 高校招聘 江苏高校 南京高校 需求学科（供参考）： 作物学 , 园艺学 , 农业与农业资源利用 , 植物保护 , 畜牧学 , 兽医学 , 林学 , 水产 , 草学 , 地&hellip;</p>
+    <div class="tags"><span class="tag t-kw">生物地球化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-10</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="江苏" data-city="南京" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-10"
+    data-text="南京信息工程大学环境科学与工程学院2026年面向全球诚邀10名师资博士后（20260907） 南京信息工程大学环境科学与工程学院 南京  基本信息 发布时间：2026-09-10 截止日期：详见正文 学历要求：博士研究生 所属省份： 江苏 工作地点： 南京 报名方式： 其他 栏目分类： 高校招聘 江苏高校 南京高校 需求学科（供参考）： 大气科学 , 环境科学与工程 , 化学 , 人工智能 , 材料科学与工程 , 地理学 展开 公告详情 此招聘信息由南京">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/429727.html" target="_blank" rel="noopener">南京信息工程大学环境科学与工程学院2026年面向全球诚邀10名师资博士后（20260907）</a>
+    <div class="meta">
+      <span class="m-unit">南京信息工程大学环境科学与工程学院</span>
+      <span class="m-loc">南京</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-10 截止日期：详见正文 学历要求：博士研究生 所属省份： 江苏 工作地点： 南京 报名方式： 其他 栏目分类： 高校招聘 江苏高校 南京高校 需求学科（供参考）： 大气科学 , 环境科学与工程 , 化学 , 人工智能 , 材料科学与工程 , 地理学 展开 公告详情 此招聘信息由南京&hellip;</p>
+    <div class="tags"><span class="tag t-kw">生物地球化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-10</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="山东" data-city="青岛" data-degree="硕士研究生及以上"
+    data-source="高校人才网" data-deadline="2026-09-22"
+    data-hasdl="1" data-pub="2026-09-09"
+    data-text="中国海洋大学未来海洋学院2026年9月招聘1名办公室工作人员启事 中国海洋大学未来海洋学院 青岛  基本信息 发布时间：2026-09-09 截止日期：2026-09-22 学历要求：硕士研究生及以上 所属省份： 山东 工作地点： 青岛 报名方式： 网上系统 栏目分类： 高校招聘 山东高校 需求学科（供参考）： 专业未分类 展开 公告详情 根据工作需要，按照公开招聘、全面考核、择优录用的原则，中国海洋大学未来海洋学院">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/429585.html" target="_blank" rel="noopener">中国海洋大学未来海洋学院2026年9月招聘1名办公室工作人员启事</a>
+    <div class="meta">
+      <span class="m-unit">中国海洋大学未来海洋学院</span>
+      <span class="m-loc">青岛</span>
+      <span class="m-deg">硕士研究生及以上</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-09 截止日期：2026-09-22 学历要求：硕士研究生及以上 所属省份： 山东 工作地点： 青岛 报名方式： 网上系统 栏目分类： 高校招聘 山东高校 需求学科（供参考）： 专业未分类 展开 公告详情 根据工作需要，按照公开招聘、全面考核、择优录用的原则，中国海洋大学未来海洋学院&hellip;</p>
+    <div class="tags"><span class="tag t-kw">机构+化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-09-22" data-hasdl="1"></span>
+    <span class="pub">发布 2026-09-09</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="山东" data-city="青岛" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-09-02"
+    data-text="中国海洋大学2026年诚聘“化学+人工智能（AI for Science）”方向青年英才 中国海洋大学 青岛  基本信息 发布时间：2026-09-02 截止日期：详见正文 学历要求：博士研究生 所属省份： 山东 工作地点： 青岛 报名方式： 站内投递 栏目分类： 高校招聘 山东高校 需求学科（供参考）： 材料科学与工程 , 物理学 , 化学 , 人工智能 展开 公告详情 中国海洋大学化学化工学院面向海内外招聘 “ 化学 + 人">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/427627.html" target="_blank" rel="noopener">中国海洋大学2026年诚聘“化学+人工智能（AI for Science）”方向青年英才</a>
+    <div class="meta">
+      <span class="m-unit">中国海洋大学</span>
+      <span class="m-loc">青岛</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-09-02 截止日期：详见正文 学历要求：博士研究生 所属省份： 山东 工作地点： 青岛 报名方式： 站内投递 栏目分类： 高校招聘 山东高校 需求学科（供参考）： 材料科学与工程 , 物理学 , 化学 , 人工智能 展开 公告详情 中国海洋大学化学化工学院面向海内外招聘 “ 化学 + 人&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-09-02</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-其他" data-cat="其他"
+    data-province="" data-city="青岛" data-degree="博士"
+    data-source="gaoxiaojob_job" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-08-12"
+    data-text="博士人才-化学/化学工程与技术 面议（面议）  青岛 化学,化学工程与技术 职位详情 安家费 科研启动费 住房补贴 节日福利 周末双休 寒暑假 定期/免费体检 餐饮补贴 五险二金 基本信息 年龄：35岁以下 职位编制 ：事业编制 报名方式：站内投递 需求专业（供参考）：
+                化学,化学工程与技术 岗位职责 详见公告正文 任职要求 招聘岗位资格 1．遵纪守法，品行端正">
+  <div class="card-main">
+    <a class="title" href="https://m.gaoxiaojob.com/job/detail/2013175.html" target="_blank" rel="noopener">博士人才-化学/化学工程与技术 面议（面议）</a>
+    <div class="meta">
+      
+      <span class="m-loc">青岛</span>
+      <span class="m-deg">博士</span>
+      
+    </div>
+    <p class="summary">职位详情 安家费 科研启动费 住房补贴 节日福利 周末双休 寒暑假 定期/免费体检 餐饮补贴 五险二金 基本信息 年龄：35岁以下 职位编制 ：事业编制 报名方式：站内投递 需求专业（供参考）：
+                化学,化学工程与技术 岗位职责 详见公告正文 任职要求 招聘岗位资格 1．遵纪守法，品行端正&hellip;</p>
+    <div class="tags"><span class="tag t-sub">化学,化学工程与技术</span><span class="tag t-kw">专业:化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">其他</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-08-12</span>
+    <span class="src">gaoxiaojob_job</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="浙江" data-city="舟山" data-degree="本科及以上"
+    data-source="高校人才网" data-deadline="2026-09-30"
+    data-hasdl="1" data-pub="2026-08-11"
+    data-text="浙江大学海洋学院海洋有机地球化学实验室2026年招聘1名实验员启事 浙江大学海洋学院海洋有机地球化学实验室 舟山  基本信息 发布时间：2026-08-11 截止日期：2026-09-30 学历要求：本科及以上 所属省份： 浙江 工作地点： 舟山 报名方式： 电子邮件 栏目分类： 高校招聘 浙江高校 需求学科（供参考）： 展开 公告详情 浙江大学海洋学院海洋化学与环境研究所张朝晖教授课题组因工作需要，公开招聘 有机地球化学实验室实验">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/422277.html" target="_blank" rel="noopener">浙江大学海洋学院海洋有机地球化学实验室2026年招聘1名实验员启事</a>
+    <div class="meta">
+      <span class="m-unit">浙江大学海洋学院海洋有机地球化学实验室</span>
+      <span class="m-loc">舟山</span>
+      <span class="m-deg">本科及以上</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-08-11 截止日期：2026-09-30 学历要求：本科及以上 所属省份： 浙江 工作地点： 舟山 报名方式： 电子邮件 栏目分类： 高校招聘 浙江高校 需求学科（供参考）： 展开 公告详情 浙江大学海洋学院海洋化学与环境研究所张朝晖教授课题组因工作需要，公开招聘 有机地球化学实验室实验&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="2026-09-30" data-hasdl="1"></span>
+    <span class="pub">发布 2026-08-11</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-部委事业" data-cat="部委事业"
+    data-province="广西" data-city="北海" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="2026-08-22"
+    data-hasdl="1" data-pub="2026-07-24"
+    data-text="自然资源部第四海洋研究所2026年度公开招聘工作人员公告（第四批） 自然资源部第四海洋研究所 北海  基本信息 发布时间：2026-07-24 截止日期：2026-08-22 学历要求：博士研究生 所属省份： 广西 工作地点： 北海 报名方式： 电子邮件 栏目分类： 科技人才 需求学科（供参考）： 生态学 , 海洋科学 , 地质学 , 环境科学与工程 , 化学 , 水产 , 药学 , 生物工程 展开 公告详情 此招聘信">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/418207.html" target="_blank" rel="noopener">自然资源部第四海洋研究所2026年度公开招聘工作人员公告（第四批）</a>
+    <div class="meta">
+      <span class="m-unit">自然资源部第四海洋研究所</span>
+      <span class="m-loc">北海</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-07-24 截止日期：2026-08-22 学历要求：博士研究生 所属省份： 广西 工作地点： 北海 报名方式： 电子邮件 栏目分类： 科技人才 需求学科（供参考）： 生态学 , 海洋科学 , 地质学 , 环境科学与工程 , 化学 , 水产 , 药学 , 生物工程 展开 公告详情 此招聘信&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋有机化学</span><span class="tag t-kw">海洋碳酸盐</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">部委事业</span>
+    <span class="dl" data-dl="2026-08-22" data-hasdl="1"></span>
+    <span class="pub">发布 2026-07-24</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="" data-city="青岛" data-degree="博士研究生"
+    data-source="科学人才网" data-deadline=""
+    data-hasdl="0" data-pub="2026-07-22"
+    data-text="中国海洋大学海洋化学【深海圈层与地球系统前沿科学中心 - 教研岗】招聘 中国海洋大学 若干人  工作地点：山东省青岛 需求部门：深海圈层与地球系统前沿科学中心 职位类别：教师/教学科研 经验要求：不限 学历要求：博士研究生 招聘人数：若干人 到岗时间：不限 性别要求：不限性别 婚况要求：不限婚况">
+  <div class="card-main">
+    <a class="title" href="https://www.sciencehr.net/job/267824.html" target="_blank" rel="noopener">中国海洋大学海洋化学【深海圈层与地球系统前沿科学中心 - 教研岗】招聘</a>
+    <div class="meta">
+      <span class="m-unit">中国海洋大学</span>
+      <span class="m-loc">若干人</span>
+      <span class="m-deg">博士研究生</span>
+      <span class="m-sal">海洋化学【深海圈层与地球系统前沿科学中心 - 教研岗】 面议 收藏 推荐 举报 投递简历 青岛</span>
+    </div>
+    <p class="summary">工作地点：山东省青岛 需求部门：深海圈层与地球系统前沿科学中心 职位类别：教师/教学科研 经验要求：不限 学历要求：博士研究生 招聘人数：若干人 到岗时间：不限 性别要求：不限性别 婚况要求：不限婚况&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="" data-hasdl="0"></span>
+    <span class="pub">发布 2026-07-22</span>
+    <span class="src">科学人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="上海" data-city="上海" data-degree="博士研究生"
+    data-source="高校人才网" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-06-11"
+    data-text="华东师范大学（河口海岸全国重点实验室）2026年招聘1名化学海洋学与生物地球化学方向领军人才启事 华东师范大学（河口海岸全国重点实验室） 上海  基本信息 发布时间：2026-06-11 截止日期：详见正文 学历要求：博士研究生 所属省份： 上海 工作地点： 上海 报名方式： 电子邮件 栏目分类： 高校招聘 上海高校 需求学科（供参考）： 化学 , 海洋科学 展开 公告详情 华东师范大学河口海岸全国重点实验室发端于1957年创建的我国第一个河口海岸专门研究机构—">
+  <div class="card-main">
+    <a class="title" href="https://www.gaoxiaojob.com/announcement/detail/407819.html" target="_blank" rel="noopener">华东师范大学（河口海岸全国重点实验室）2026年招聘1名化学海洋学与生物地球化学方向领军人才启事</a>
+    <div class="meta">
+      <span class="m-unit">华东师范大学（河口海岸全国重点实验室）</span>
+      <span class="m-loc">上海</span>
+      <span class="m-deg">博士研究生</span>
+      
+    </div>
+    <p class="summary">基本信息 发布时间：2026-06-11 截止日期：详见正文 学历要求：博士研究生 所属省份： 上海 工作地点： 上海 报名方式： 电子邮件 栏目分类： 高校招聘 上海高校 需求学科（供参考）： 化学 , 海洋科学 展开 公告详情 华东师范大学河口海岸全国重点实验室发端于1957年创建的我国第一个河口海岸专门研究机构—&hellip;</p>
+    <div class="tags"><span class="tag t-kw">化学海洋学</span><span class="tag t-kw">海洋生物地球化学</span><span class="tag t-kw">生物地球化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-06-11</span>
+    <span class="src">高校人才网</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="" data-city="青岛" data-degree="博士"
+    data-source="gaoxiaojob_job" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-05-28"
+    data-text="特别研究助理（含博士后）（海洋微生物应用潜力挖掘研究领域） 30-60万/年（中国科学院海洋研究所2026年招聘特别研究助理（含博士后）启事） 中国科学院海洋研究所 青岛 海洋科学,生物学 职位详情 五险一金 定期/免费体检 基本信息 年龄：35周岁（含）以下 用人部门：海洋研究所 报名方式：其他 需求专业（供参考）：
+                海洋科学,生物学 岗位职责 研究领域：海洋微生物应用潜力挖掘 任职要求 在微生物遗传操作、酶制剂研发、天然产物纯化及结构解析、分子生物学及生物化学等领域有良">
+  <div class="card-main">
+    <a class="title" href="https://m.gaoxiaojob.com/job/detail/2193510.html" target="_blank" rel="noopener">特别研究助理（含博士后）（海洋微生物应用潜力挖掘研究领域） 30-60万/年（中国科学院海洋研究所2026年招聘特别研究助理（含博士后）启事）</a>
+    <div class="meta">
+      <span class="m-unit">中国科学院海洋研究所</span>
+      <span class="m-loc">青岛</span>
+      <span class="m-deg">博士</span>
+      <span class="m-sal">30-60万/年</span>
+    </div>
+    <p class="summary">职位详情 五险一金 定期/免费体检 基本信息 年龄：35周岁（含）以下 用人部门：海洋研究所 报名方式：其他 需求专业（供参考）：
+                海洋科学,生物学 岗位职责 研究领域：海洋微生物应用潜力挖掘 任职要求 在微生物遗传操作、酶制剂研发、天然产物纯化及结构解析、分子生物学及生物化学等领域有良&hellip;</p>
+    <div class="tags"><span class="tag t-sub">海洋科学,生物学</span><span class="tag t-kw">专业:海洋科学</span><span class="tag t-kw">机构+化学</span><span class="tag t-kw">海洋系统单位</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-05-28</span>
+    <span class="src">gaoxiaojob_job</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="" data-city="青岛" data-degree="博士"
+    data-source="gaoxiaojob_job" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-05-28"
+    data-text="特别研究助理（含博士后）（藻类遗传学与基因组学研究领域） 30-60万/年（中国科学院海洋研究所2026年招聘特别研究助理（含博士后）启事） 中国科学院海洋研究所 青岛 海洋科学,生物学 职位详情 五险一金 定期/免费体检 基本信息 年龄：35周岁（含）以下 用人部门：海洋研究所 报名方式：其他 需求专业（供参考）：
+                海洋科学,生物学 岗位职责 研究领域：藻类遗传学与基因组学 任职要求 在基因组学、基因组选择育种、GWAS或生物信息学等领域有良好基础，熟悉分子生物学的相关">
+  <div class="card-main">
+    <a class="title" href="https://m.gaoxiaojob.com/job/detail/2193509.html" target="_blank" rel="noopener">特别研究助理（含博士后）（藻类遗传学与基因组学研究领域） 30-60万/年（中国科学院海洋研究所2026年招聘特别研究助理（含博士后）启事）</a>
+    <div class="meta">
+      <span class="m-unit">中国科学院海洋研究所</span>
+      <span class="m-loc">青岛</span>
+      <span class="m-deg">博士</span>
+      <span class="m-sal">30-60万/年</span>
+    </div>
+    <p class="summary">职位详情 五险一金 定期/免费体检 基本信息 年龄：35周岁（含）以下 用人部门：海洋研究所 报名方式：其他 需求专业（供参考）：
+                海洋科学,生物学 岗位职责 研究领域：藻类遗传学与基因组学 任职要求 在基因组学、基因组选择育种、GWAS或生物信息学等领域有良好基础，熟悉分子生物学的相关&hellip;</p>
+    <div class="tags"><span class="tag t-sub">海洋科学,生物学</span><span class="tag t-kw">专业:海洋科学</span><span class="tag t-kw">海洋系统单位</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-05-28</span>
+    <span class="src">gaoxiaojob_job</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="" data-city="青岛" data-degree="博士"
+    data-source="gaoxiaojob_job" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-05-28"
+    data-text="特别研究助理（含博士后）（合成生物学研究领域） 30-60万/年（中国科学院海洋研究所2026年招聘特别研究助理（含博士后）启事） 中国科学院海洋研究所 青岛 海洋科学,生物学 职位详情 五险一金 定期/免费体检 基本信息 年龄：35周岁（含）以下 用人部门：海洋研究所 报名方式：其他 需求专业（供参考）：
+                海洋科学,生物学 岗位职责 研究领域：合成生物学 任职要求 具有分子生物学、合成生物学等相关专业的研究基础，以第一作者发表SCI论文2篇及以上。 其他要求 ">
+  <div class="card-main">
+    <a class="title" href="https://m.gaoxiaojob.com/job/detail/2193508.html" target="_blank" rel="noopener">特别研究助理（含博士后）（合成生物学研究领域） 30-60万/年（中国科学院海洋研究所2026年招聘特别研究助理（含博士后）启事）</a>
+    <div class="meta">
+      <span class="m-unit">中国科学院海洋研究所</span>
+      <span class="m-loc">青岛</span>
+      <span class="m-deg">博士</span>
+      <span class="m-sal">30-60万/年</span>
+    </div>
+    <p class="summary">职位详情 五险一金 定期/免费体检 基本信息 年龄：35周岁（含）以下 用人部门：海洋研究所 报名方式：其他 需求专业（供参考）：
+                海洋科学,生物学 岗位职责 研究领域：合成生物学 任职要求 具有分子生物学、合成生物学等相关专业的研究基础，以第一作者发表SCI论文2篇及以上。 其他要求 &hellip;</p>
+    <div class="tags"><span class="tag t-sub">海洋科学,生物学</span><span class="tag t-kw">专业:海洋科学</span><span class="tag t-kw">海洋系统单位</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-05-28</span>
+    <span class="src">gaoxiaojob_job</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="" data-city="青岛" data-degree="博士"
+    data-source="gaoxiaojob_job" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-05-28"
+    data-text="特别研究助理（含博士后）（天然产物化学研究领域） 30-60万/年（中国科学院海洋研究所2026年招聘特别研究助理（含博士后）启事） 中国科学院海洋研究所 青岛 化学,海洋科学 职位详情 五险一金 定期/免费体检 基本信息 年龄：35周岁（含）以下 用人部门：海洋研究所 报名方式：其他 需求专业（供参考）：
+                化学,海洋科学 岗位职责 研究领域：天然产物化学 任职要求 具有天然产物分离纯化和结构鉴定等相关专业的研究基础，以第一作者发表SCI论文2篇及以上。 其他要">
+  <div class="card-main">
+    <a class="title" href="https://m.gaoxiaojob.com/job/detail/2193507.html" target="_blank" rel="noopener">特别研究助理（含博士后）（天然产物化学研究领域） 30-60万/年（中国科学院海洋研究所2026年招聘特别研究助理（含博士后）启事）</a>
+    <div class="meta">
+      <span class="m-unit">中国科学院海洋研究所</span>
+      <span class="m-loc">青岛</span>
+      <span class="m-deg">博士</span>
+      <span class="m-sal">30-60万/年</span>
+    </div>
+    <p class="summary">职位详情 五险一金 定期/免费体检 基本信息 年龄：35周岁（含）以下 用人部门：海洋研究所 报名方式：其他 需求专业（供参考）：
+                化学,海洋科学 岗位职责 研究领域：天然产物化学 任职要求 具有天然产物分离纯化和结构鉴定等相关专业的研究基础，以第一作者发表SCI论文2篇及以上。 其他要&hellip;</p>
+    <div class="tags"><span class="tag t-sub">化学,海洋科学</span><span class="tag t-kw">专业:海洋科学</span><span class="tag t-kw">机构+化学</span><span class="tag t-kw">海洋系统单位</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-05-28</span>
+    <span class="src">gaoxiaojob_job</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="" data-city="青岛" data-degree="博士"
+    data-source="gaoxiaojob_job" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-05-28"
+    data-text="特别研究助理（含博士后）（微生物学研究领域） 30-60万/年（中国科学院海洋研究所2026年招聘特别研究助理（含博士后）启事） 中国科学院海洋研究所 青岛 海洋科学,生物学 职位详情 五险一金 定期/免费体检 基本信息 年龄：35周岁（含）以下 用人部门：海洋研究所 报名方式：其他 需求专业（供参考）：
+                海洋科学,生物学 岗位职责 研究领域：微生物学 任职要求 具有微生物或海洋微生物领域等相关专业的研究基础，以第一作者发表SCI论文2篇及以上。 其他要求 申">
+  <div class="card-main">
+    <a class="title" href="https://m.gaoxiaojob.com/job/detail/2193506.html" target="_blank" rel="noopener">特别研究助理（含博士后）（微生物学研究领域） 30-60万/年（中国科学院海洋研究所2026年招聘特别研究助理（含博士后）启事）</a>
+    <div class="meta">
+      <span class="m-unit">中国科学院海洋研究所</span>
+      <span class="m-loc">青岛</span>
+      <span class="m-deg">博士</span>
+      <span class="m-sal">30-60万/年</span>
+    </div>
+    <p class="summary">职位详情 五险一金 定期/免费体检 基本信息 年龄：35周岁（含）以下 用人部门：海洋研究所 报名方式：其他 需求专业（供参考）：
+                海洋科学,生物学 岗位职责 研究领域：微生物学 任职要求 具有微生物或海洋微生物领域等相关专业的研究基础，以第一作者发表SCI论文2篇及以上。 其他要求 申&hellip;</p>
+    <div class="tags"><span class="tag t-sub">海洋科学,生物学</span><span class="tag t-kw">专业:海洋科学</span><span class="tag t-kw">海洋系统单位</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-05-28</span>
+    <span class="src">gaoxiaojob_job</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="" data-city="青岛" data-degree="博士"
+    data-source="gaoxiaojob_job" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-05-28"
+    data-text="特别研究助理（含博士后）（深海多鳞虫的功能适应性研究领域） 30-60万/年（中国科学院海洋研究所2026年招聘特别研究助理（含博士后）启事） 中国科学院海洋研究所 青岛 海洋科学,生物学 职位详情 五险一金 定期/免费体检 基本信息 年龄：35周岁（含）以下 用人部门：海洋研究所 报名方式：其他 需求专业（供参考）：
+                海洋科学,生物学 岗位职责 研究领域：深海多鳞虫的功能适应性 任职要求 具有进化生物学、基因组学信息分析、海洋生物学的研究基础，熟悉Perl, Python">
+  <div class="card-main">
+    <a class="title" href="https://m.gaoxiaojob.com/job/detail/2193505.html" target="_blank" rel="noopener">特别研究助理（含博士后）（深海多鳞虫的功能适应性研究领域） 30-60万/年（中国科学院海洋研究所2026年招聘特别研究助理（含博士后）启事）</a>
+    <div class="meta">
+      <span class="m-unit">中国科学院海洋研究所</span>
+      <span class="m-loc">青岛</span>
+      <span class="m-deg">博士</span>
+      <span class="m-sal">30-60万/年</span>
+    </div>
+    <p class="summary">职位详情 五险一金 定期/免费体检 基本信息 年龄：35周岁（含）以下 用人部门：海洋研究所 报名方式：其他 需求专业（供参考）：
+                海洋科学,生物学 岗位职责 研究领域：深海多鳞虫的功能适应性 任职要求 具有进化生物学、基因组学信息分析、海洋生物学的研究基础，熟悉Perl, Python&hellip;</p>
+    <div class="tags"><span class="tag t-sub">海洋科学,生物学</span><span class="tag t-kw">专业:海洋科学</span><span class="tag t-kw">机构+化学</span><span class="tag t-kw">海洋系统单位</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-05-28</span>
+    <span class="src">gaoxiaojob_job</span>
+  </div>
+</article><article class="card cat-高校" data-cat="高校"
+    data-province="" data-city="青岛" data-degree="博士"
+    data-source="gaoxiaojob_job" data-deadline="详见正文"
+    data-hasdl="0" data-pub="2026-05-28"
+    data-text="特别研究助理（含博士后）（贝壳再生的细胞和遗传基础研究领域） 30-60万/年（中国科学院海洋研究所2026年招聘特别研究助理（含博士后）启事） 中国科学院海洋研究所 青岛 海洋科学,生物学,水产 职位详情 五险一金 定期/免费体检 基本信息 年龄：35周岁（含）以下 用人部门：海洋研究所 报名方式：其他 需求专业（供参考）：
+                海洋科学,生物学,水产 岗位职责 研究领域：贝壳再生的细胞和遗传基础 任职要求 获得水产养殖学/海洋生物学/遗传学等相关专业博士学位；有水产动物材料培育，遗">
+  <div class="card-main">
+    <a class="title" href="https://m.gaoxiaojob.com/job/detail/2193504.html" target="_blank" rel="noopener">特别研究助理（含博士后）（贝壳再生的细胞和遗传基础研究领域） 30-60万/年（中国科学院海洋研究所2026年招聘特别研究助理（含博士后）启事）</a>
+    <div class="meta">
+      <span class="m-unit">中国科学院海洋研究所</span>
+      <span class="m-loc">青岛</span>
+      <span class="m-deg">博士</span>
+      <span class="m-sal">30-60万/年</span>
+    </div>
+    <p class="summary">职位详情 五险一金 定期/免费体检 基本信息 年龄：35周岁（含）以下 用人部门：海洋研究所 报名方式：其他 需求专业（供参考）：
+                海洋科学,生物学,水产 岗位职责 研究领域：贝壳再生的细胞和遗传基础 任职要求 获得水产养殖学/海洋生物学/遗传学等相关专业博士学位；有水产动物材料培育，遗&hellip;</p>
+    <div class="tags"><span class="tag t-sub">海洋科学,生物学,水产</span><span class="tag t-kw">专业:海洋科学</span><span class="tag t-kw">海洋系统单位</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">高校</span>
+    <span class="dl" data-dl="详见正文" data-hasdl="0"></span>
+    <span class="pub">发布 2026-05-28</span>
+    <span class="src">gaoxiaojob_job</span>
+  </div>
+</article><article class="card cat-科研院所" data-cat="科研院所"
+    data-province="" data-city="厦门" data-degree=""
+    data-source="shiyebian" data-deadline="2025-06-30"
+    data-hasdl="1" data-pub="2025-06-04"
+    data-text="2025年海洋生物地球化学全国重点实验室学术秘书招聘启事 海洋生物地球化学全国重点实验室学术秘书   海洋生物地球化学全国重点实验室（厦门大学）前身为近海海洋环境科学国家重点实验室（英文：StateKeyLaboratoryofMarineEnvironmentalScience，简称MEL），于2005年获科技部批准建设，2025年通过重组。实验室坚持走国际化发展道路，科学研究立足国家需求，面向国际前沿，管理体系参比">
+  <div class="card-main">
+    <a class="title" href="https://www.shiyebian.net/xinxi/514603.html" target="_blank" rel="noopener">2025年海洋生物地球化学全国重点实验室学术秘书招聘启事</a>
+    <div class="meta">
+      <span class="m-unit">海洋生物地球化学全国重点实验室学术秘书</span>
+      
+      
+      
+    </div>
+    <p class="summary">海洋生物地球化学全国重点实验室（厦门大学）前身为近海海洋环境科学国家重点实验室（英文：StateKeyLaboratoryofMarineEnvironmentalScience，简称MEL），于2005年获科技部批准建设，2025年通过重组。实验室坚持走国际化发展道路，科学研究立足国家需求，面向国际前沿，管理体系参比&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋生物地球化学</span><span class="tag t-kw">生物地球化学</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">科研院所</span>
+    <span class="dl" data-dl="2025-06-30" data-hasdl="1"></span>
+    <span class="pub">发布 2025-06-04</span>
+    <span class="src">shiyebian</span>
+  </div>
+</article><article class="card cat-部委事业" data-cat="部委事业"
+    data-province="" data-city="深圳" data-degree=""
+    data-source="shiyebian" data-deadline="2025-06-08"
+    data-hasdl="1" data-pub="2025-06-04"
+    data-text="2025年6月深圳市规划和自然资源局光明管理局招聘一般类岗位专干公告（2人） 6月深圳市规划和自然资源局光明管理局   根据工作需要，深圳市规划和自然资源局光明管理局面向社会公开招聘2名一般类岗位专干。现公告如下： 一、招录岗位 招聘岗位条件及要求详见附件1《深圳市规划和自然资源局光明管理局2025年6月公开招聘一般类专干岗位表》，职位专业要求可参考附件2《广东省2025年考试录用公务员专业参考目录》。 二、报考条件 (一)报考资格条件">
+  <div class="card-main">
+    <a class="title" href="https://www.shiyebian.net/xinxi/514569.html" target="_blank" rel="noopener">2025年6月深圳市规划和自然资源局光明管理局招聘一般类岗位专干公告（2人）</a>
+    <div class="meta">
+      <span class="m-unit">6月深圳市规划和自然资源局光明管理局</span>
+      
+      
+      
+    </div>
+    <p class="summary">根据工作需要，深圳市规划和自然资源局光明管理局面向社会公开招聘2名一般类岗位专干。现公告如下： 一、招录岗位 招聘岗位条件及要求详见附件1《深圳市规划和自然资源局光明管理局2025年6月公开招聘一般类专干岗位表》，职位专业要求可参考附件2《广东省2025年考试录用公务员专业参考目录》。 二、报考条件 (一)报考资格条件&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋系统单位</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">部委事业</span>
+    <span class="dl" data-dl="2025-06-08" data-hasdl="1"></span>
+    <span class="pub">发布 2025-06-04</span>
+    <span class="src">shiyebian</span>
+  </div>
+</article><article class="card cat-部委事业" data-cat="部委事业"
+    data-province="" data-city="" data-degree=""
+    data-source="shiyebian" data-deadline="2025-04-28"
+    data-hasdl="1" data-pub="2025-04-09"
+    data-text="2025年度自然资源部所属单位招聘工作人员公告（第二批）（57人） 自然资源部所属单位   根据工作需要，按照事业单位公开招聘有关政策规定，自然资源部所属单位开展2025年度第二批公开招聘工作。现将有关事项公告如下： 一、招聘计划 本次参加第二批公开招聘的单位共9家，招聘岗位50个，招聘人数57人。招聘单位包括国家海洋技术中心、国家海洋标准计量中心、国家海洋信息中心、中国极地研究中心、国家深海基地管理中心、自">
+  <div class="card-main">
+    <a class="title" href="https://www.shiyebian.net/xinxi/508219.html" target="_blank" rel="noopener">2025年度自然资源部所属单位招聘工作人员公告（第二批）（57人）</a>
+    <div class="meta">
+      <span class="m-unit">自然资源部所属单位</span>
+      
+      
+      
+    </div>
+    <p class="summary">根据工作需要，按照事业单位公开招聘有关政策规定，自然资源部所属单位开展2025年度第二批公开招聘工作。现将有关事项公告如下： 一、招聘计划 本次参加第二批公开招聘的单位共9家，招聘岗位50个，招聘人数57人。招聘单位包括国家海洋技术中心、国家海洋标准计量中心、国家海洋信息中心、中国极地研究中心、国家深海基地管理中心、自&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋系统单位</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">部委事业</span>
+    <span class="dl" data-dl="2025-04-28" data-hasdl="1"></span>
+    <span class="pub">发布 2025-04-09</span>
+    <span class="src">shiyebian</span>
+  </div>
+</article><article class="card cat-部委事业" data-cat="部委事业"
+    data-province="" data-city="" data-degree=""
+    data-source="shiyebian" data-deadline="2025-04-15"
+    data-hasdl="1" data-pub="2025-04-02"
+    data-text="2025年度自然资源部第二海洋研究所招聘在职人员公告（13人） 自然资源部第二海洋研究所   根据单位发展需要，现面向社会公开招聘工作人员。现将有关事项公告如下： 一、单位简介 自然资源部第二海洋研究所创建于1966年，是一座学科齐全、科技力量雄厚、设备先进的综合型公益性海洋研究机构，隶属于自然资源部。主要从事中国海、大洋和极地海洋科学研究；海洋环境与资源探测、勘查的高新技术研发与应用。 二、招聘原则 坚持公平">
+  <div class="card-main">
+    <a class="title" href="https://www.shiyebian.net/xinxi/507624.html" target="_blank" rel="noopener">2025年度自然资源部第二海洋研究所招聘在职人员公告（13人）</a>
+    <div class="meta">
+      <span class="m-unit">自然资源部第二海洋研究所</span>
+      
+      
+      
+    </div>
+    <p class="summary">根据单位发展需要，现面向社会公开招聘工作人员。现将有关事项公告如下： 一、单位简介 自然资源部第二海洋研究所创建于1966年，是一座学科齐全、科技力量雄厚、设备先进的综合型公益性海洋研究机构，隶属于自然资源部。主要从事中国海、大洋和极地海洋科学研究；海洋环境与资源探测、勘查的高新技术研发与应用。 二、招聘原则 坚持公平&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋系统单位</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">部委事业</span>
+    <span class="dl" data-dl="2025-04-15" data-hasdl="1"></span>
+    <span class="pub">发布 2025-04-02</span>
+    <span class="src">shiyebian</span>
+  </div>
+</article><article class="card cat-部委事业" data-cat="部委事业"
+    data-province="" data-city="" data-degree=""
+    data-source="shiyebian" data-deadline="2025-04-30"
+    data-hasdl="1" data-pub="2025-04-02"
+    data-text="2025年度自然资源部第四海洋研究所招聘应届博士毕业生公告（9人） 自然资源部第四海洋研究所   根据单位发展需要，现面向社会公开招聘工作人员。现将有关事项公告如下： 一、单位简介 自然资源部第四海洋研究所（简称海洋四所），加挂“中国—东盟国家海洋科技联合研发中心”和“广西海洋发展研究院”牌子，是自然资源部和广西壮族自治区人民政府共建的正厅级科研事业单位。主要开展以海洋生态系统动力学为核心的科学研究；开展以海洋生态">
+  <div class="card-main">
+    <a class="title" href="https://www.shiyebian.net/xinxi/507571.html" target="_blank" rel="noopener">2025年度自然资源部第四海洋研究所招聘应届博士毕业生公告（9人）</a>
+    <div class="meta">
+      <span class="m-unit">自然资源部第四海洋研究所</span>
+      
+      
+      
+    </div>
+    <p class="summary">根据单位发展需要，现面向社会公开招聘工作人员。现将有关事项公告如下： 一、单位简介 自然资源部第四海洋研究所（简称海洋四所），加挂“中国—东盟国家海洋科技联合研发中心”和“广西海洋发展研究院”牌子，是自然资源部和广西壮族自治区人民政府共建的正厅级科研事业单位。主要开展以海洋生态系统动力学为核心的科学研究；开展以海洋生态&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋系统单位</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">部委事业</span>
+    <span class="dl" data-dl="2025-04-30" data-hasdl="1"></span>
+    <span class="pub">发布 2025-04-02</span>
+    <span class="src">shiyebian</span>
+  </div>
+</article><article class="card cat-部委事业" data-cat="部委事业"
+    data-province="" data-city="" data-degree=""
+    data-source="shiyebian" data-deadline="2025-04-22"
+    data-hasdl="1" data-pub="2025-04-02"
+    data-text="2025年度自然资源部第三海洋研究所招聘应届博士毕业生公告（26人） 自然资源部第三海洋研究所   根据单位发展需要，现面向社会公开招聘工作人员。现将有关事项公告如下： 一、单位简介 自然资源部第三海洋研究所（简称海洋三所）创建于1959年,是自然资源部直属的国家公益一类综合型海洋科学研究机构，主要从事海洋基础研究、应用研究和高新技术研究，促进海洋科技进步，为海洋管理、公益服务、海洋经济发展及海洋安全提供科技支撑。 ">
+  <div class="card-main">
+    <a class="title" href="https://www.shiyebian.net/xinxi/507570.html" target="_blank" rel="noopener">2025年度自然资源部第三海洋研究所招聘应届博士毕业生公告（26人）</a>
+    <div class="meta">
+      <span class="m-unit">自然资源部第三海洋研究所</span>
+      
+      
+      
+    </div>
+    <p class="summary">根据单位发展需要，现面向社会公开招聘工作人员。现将有关事项公告如下： 一、单位简介 自然资源部第三海洋研究所（简称海洋三所）创建于1959年,是自然资源部直属的国家公益一类综合型海洋科学研究机构，主要从事海洋基础研究、应用研究和高新技术研究，促进海洋科技进步，为海洋管理、公益服务、海洋经济发展及海洋安全提供科技支撑。 &hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋系统单位</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">部委事业</span>
+    <span class="dl" data-dl="2025-04-22" data-hasdl="1"></span>
+    <span class="pub">发布 2025-04-02</span>
+    <span class="src">shiyebian</span>
+  </div>
+</article><article class="card cat-部委事业" data-cat="部委事业"
+    data-province="" data-city="" data-degree=""
+    data-source="shiyebian" data-deadline="2025-04-14"
+    data-hasdl="1" data-pub="2025-04-02"
+    data-text="2025年度自然资源部第一海洋研究所招聘工作人员公告 自然资源部第一海洋研究所   根据单位发展需要，现面向社会公开招聘工作人员。现将有关事项公告如下： 一、单位简介 自然资源部第一海洋研究所是自然资源部直属的正局级事业单位，是从事基础研究、应用基础研究、高新技术开发和社会公益服务于一体的综合性海洋研究机构。自然资源部第一海洋研究所致力于研究中国近海、大洋和极地海域自然环境要素分布及变化规律，研究方向">
+  <div class="card-main">
+    <a class="title" href="https://www.shiyebian.net/xinxi/507569.html" target="_blank" rel="noopener">2025年度自然资源部第一海洋研究所招聘工作人员公告</a>
+    <div class="meta">
+      <span class="m-unit">自然资源部第一海洋研究所</span>
+      
+      
+      
+    </div>
+    <p class="summary">根据单位发展需要，现面向社会公开招聘工作人员。现将有关事项公告如下： 一、单位简介 自然资源部第一海洋研究所是自然资源部直属的正局级事业单位，是从事基础研究、应用基础研究、高新技术开发和社会公益服务于一体的综合性海洋研究机构。自然资源部第一海洋研究所致力于研究中国近海、大洋和极地海域自然环境要素分布及变化规律，研究方向&hellip;</p>
+    <div class="tags"><span class="tag t-kw">海洋系统单位</span></div>
+  </div>
+  <div class="card-side">
+    <span class="pill cat-pill">部委事业</span>
+    <span class="dl" data-dl="2025-04-14" data-hasdl="1"></span>
+    <span class="pub">发布 2025-04-02</span>
+    <span class="src">shiyebian</span>
+  </div>
+</article></div>
+  <div class="empty" id="empty">没有符合条件的招聘信息</div>
+</div>
+
+<footer>
+  数据由程序自动采集自 <a href="https://www.gaoxiaojob.com" target="_blank" rel="noopener">高校人才网</a> 与
+  <a href="https://www.sciencehr.net" target="_blank" rel="noopener">科学人才网</a> 公开页面，仅作学科信息聚合，具体以各单位官方公告为准。<br>
+  共 51 条 · 构建 2026-09-28 11:25 ·
+  <a href="rss.xml">RSS 订阅</a> · <a href="jobs.json">JSON 数据</a>
+</footer>
+
+<script>
+const today = new Date('2026-09-28');
+const cards = Array.from(document.querySelectorAll('.card'));
+
+// 截止状态渲染
+cards.forEach(c => {
+  const el = c.querySelector('.dl');
+  const dl = el.dataset.dl, has = el.dataset.hasdl === '1';
+  if (!has) { el.textContent = '长期/详见正文'; el.classList.add('na'); return; }
+  const d = new Date(dl);
+  const days = Math.round((d - today) / 864e5);
+  c.dataset.expired = days < 0 ? '1' : '0';
+  if (days < 0) { el.textContent = '已截止 ' + dl; el.classList.add('past'); }
+  else if (days <= 7) { el.textContent = days === 0 ? '今日截止' : '剩 ' + days + ' 天'; el.classList.add('soon'); }
+  else { el.textContent = '截止 ' + dl; el.classList.add('open'); }
+  if (days >= 0 && days <= 7) { el.classList.add('open'); }
+});
+// NEW 徽章（7 天内发布）
+cards.forEach(c => {
+  const pub = c.dataset.pub;
+  if (!pub) return;
+  const days = Math.round((new Date(pub) - today) / 864e5);
+  if (days <= 7) {
+    const t = c.querySelector('.title');
+    const b = document.createElement('span');
+    b.className = 'new-badge'; b.textContent = 'NEW';
+    t.after(b);
+  }
+});
+
+const q = document.getElementById('q');
+const provSel = document.getElementById('province');
+const citySel = document.getElementById('city');
+const degSel = document.getElementById('degree');
+const srcSel = document.getElementById('source');
+const sortSel = document.getElementById('sort');
+const countEl = document.getElementById('count');
+const emptyEl = document.getElementById('empty');
+const listEl = document.getElementById('list');
+let status = 'all', cat = '';
+
+function apply() {
+  const kw = q.value.trim().toLowerCase();
+  let shown = cards.filter(c => {
+    if (kw && !c.dataset.text.toLowerCase().includes(kw)) return false;
+    if (cat && c.dataset.cat !== cat) return false;
+    if (citySel.value && c.dataset.city !== citySel.value) return false;
+    if (provSel.value && c.dataset.province !== provSel.value) return false;
+    if (degSel.value && c.dataset.degree !== degSel.value) return false;
+    if (srcSel.value && c.dataset.source !== srcSel.value) return false;
+    if (status === 'open' && c.dataset.expired === '1') return false;
+    if (status === 'expired' && c.dataset.expired !== '1') return false;
+    return true;
+  });
+  if (sortSel.value === 'deadline') {
+    shown.sort((a, b) => (a.dataset.hasdl === '1' ? a.dataset.deadline : '9999')
+      .localeCompare(b.dataset.hasdl === '1' ? b.dataset.deadline : '9999'));
+  }
+  cards.forEach(c => c.classList.add('hide'));
+  shown.forEach(c => c.classList.remove('hide'));
+  countEl.textContent = '共 ' + shown.length + ' 条';
+  emptyEl.style.display = shown.length ? 'none' : 'block';
+}
+
+q.addEventListener('input', apply);
+[provSel, citySel, degSel, srcSel, sortSel].forEach(s => s.addEventListener('change', apply));
+document.getElementById('status').addEventListener('click', e => {
+  if (e.target.tagName !== 'BUTTON') return;
+  document.querySelectorAll('#status button').forEach(b => b.classList.remove('on'));
+  e.target.classList.add('on');
+  status = e.target.dataset.v;
+  apply();
+});
+document.getElementById('cats').addEventListener('click', e => {
+  if (e.target.tagName !== 'BUTTON') return;
+  document.querySelectorAll('#cats .chip').forEach(b => b.classList.remove('on'));
+  e.target.classList.add('on');
+  cat = e.target.dataset.v;
+  apply();
+});
+apply();
+</script>
+</body>
+</html>
