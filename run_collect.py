@@ -66,7 +66,8 @@ def main():
         if backfill > 0:
             max_requests = max(max_requests, backfill + 100)
         fetcher = Fetcher(base=scfg["base"], timeout=cfg["source_timeout"],
-                          min_delay=cfg["min_delay"], max_delay=cfg["max_delay"],
+                          min_delay=scfg.get("min_delay", cfg["min_delay"]),
+                          max_delay=scfg.get("max_delay", cfg["max_delay"]),
                           max_requests=max_requests)
         source = stype(fetcher, scfg)
         print("== source:", source.name, "backfill:", backfill)

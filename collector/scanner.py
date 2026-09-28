@@ -10,7 +10,33 @@ CHUNK = 12
 
 
 def run_scan(fetcher, source, store, cfg, backfill=0):
-    """主流程：发现前沿 -> 分块并发扫描未扫过的 ID 段 -> 匹配 -> 存储"""
+    """主流程：ID 扫描型来源走增量/回填；列表型来源走 list_items/fetch_item"""
+    if hasattr(source, "list_items"):
+        return _run_list_scan(fetcher, source, store)
+    return _run_id_scan(fetcher, source, store, cfg, backfill)
+
+
+def _run_list_scan(fetcher, source, store):
+    """列表型来源：列表页 -> 新文章抓详情 -> 全量入库"""
+    name = source.name
+    items = source.list_items()
+    log.info("[%s] list items: %d", name, len(items))
+    found = 0
+    for aid, title in items:
+        if fetcher.dead:
+            break
+        if store.has_job(aid):
+            continue
+        job = source.fetch_item(aid)
+        if job and store.upsert(job):
+            found += 1
+            log.info("[%s] hit #%s %s", name, aid, job["title"][:48])
+    log.info("[%s] list scan found=%d", name, found)
+    return found, len(items)
+
+
+def _run_id_scan(fetcher, source, store, cfg, backfill=0):
+    """ID 扫描型：发现前沿 -> 分块并发扫描未扫过的 ID 段 -> 匹配 -> 存储"""
     name = source.name
     hint = int(store.get_state("frontier_hint:" + name, "0") or 0)
     frontier = source.discover_frontier(hint)
@@ -63,6 +89,10 @@ def run_scan(fetcher, source, store, cfg, backfill=0):
             if backfill > 0:
                 # 每块提交回填指针，中断后可续跑
                 store.set_state("backfilled_through:" + name, chunk[-1])
+            if fetcher.dead:
+                log.warning("[%s] circuit breaker open, stop at id %s", name, chunk[-1])
+                scan_end = chunk[-1]
+                break
             if not fetcher.budget_left():
                 log.warning("[%s] request budget, stop at id %s", name, chunk[-1])
                 scan_end = chunk[-1]

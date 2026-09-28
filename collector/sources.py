@@ -194,5 +194,61 @@ class GaoxiaojobJobSource:
         return data
 
 
+class CsscSource:
+    """中国船舶集团官网招聘栏目（cssc.net.cn/n9/n63）：列表型来源。
+    央企秋招公告主要发在官方渠道而非学术聚合站，此栏目直采补缺。
+    详情页正文 JS 渲染，采集标题+日期+链接即够用"""
+    name = "cssc"
+    label = "中国船舶集团"
+    base = "http://www.cssc.net.cn"
+
+    def __init__(self, fetcher, cfg):
+        self.fetcher = fetcher
+        self.cfg = cfg
+        self.seed_ids = []
+
+    def list_items(self):
+        """抓列表页，返回 [(id, title), ...]"""
+        r = self.fetcher.get("/n9/n63/index.html")
+        if not r or r.status_code != 200:
+            return []
+        items = []
+        for m in re.finditer(r'c(\d+)/content\.html"[^>]*>([^<]{6,80})<', r.text):
+            title = m.group(2).strip()
+            if title and ("招聘" in title or "人才" in title):
+                items.append((int(m.group(1)), title))
+        return items
+
+    def fetch_item(self, aid):
+        r = self.fetcher.get("/n9/n63/c%d/content.html" % aid)
+        if not r or r.status_code != 200:
+            return None
+        soup = BeautifulSoup(r.text, "lxml")
+        t_el = soup.select_one(".article_title")
+        title = t_el.get_text(" ", strip=True) if t_el else ""
+        if not title:
+            return None
+        m = re.search(r"(20\d{2}-\d{2}-\d{2})", soup.get_text(" ", strip=True))
+        publish_date = m.group(1) if m else ""
+        return {
+            "id": aid,
+            "source": self.name,
+            "source_label": self.label,
+            "title": title,
+            "url": self.base + "/n9/n63/c%d/content.html" % aid,
+            "unit": "中国船舶集团",
+            "publish_date": publish_date,
+            "deadline": "",
+            "degree": "",
+            "province": "",
+            "location": "",
+            "subjects": [],
+            "content": title,
+            "salary": "",
+            "matched_keywords": ["海洋央企国企"],
+        }
+
+
 SOURCE_TYPES = {"gaoxiaojob": GaoxiaojobSource, "sciencehr": SciencehrSource,
-                "shiyebian": ShiyebianSource, "gaoxiaojob_job": GaoxiaojobJobSource}
+                "shiyebian": ShiyebianSource, "gaoxiaojob_job": GaoxiaojobJobSource,
+                "cssc": CsscSource}

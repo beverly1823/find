@@ -18,17 +18,20 @@ class Fetcher:
     """多线程安全：每线程独立 Session；全局按 min_interval 间隔发起请求"""
 
     def __init__(self, base, timeout=25, min_delay=0.4, max_delay=0.9,
-                 max_requests=1200, workers=3):
+                 max_requests=1200, workers=3, fail_limit=25):
         self.base = base.rstrip("/")
         self.timeout = timeout
         self.min_delay = min_delay
         self.max_delay = max_delay
         self.max_requests = max_requests
         self.workers = workers
+        self.fail_limit = fail_limit
         self._n = 0
         self._n_lock = threading.Lock()
         self._slot_lock = threading.Lock()
         self._next_slot = 0.0
+        self._fails = 0
+        self.dead = False
         self._local = threading.local()
 
     @property
@@ -56,6 +59,8 @@ class Fetcher:
             return self._n < self.max_requests
 
     def get(self, path_or_url, **kw):
+        if self.dead:
+            return None
         with self._n_lock:
             if self._n >= self.max_requests:
                 return None
@@ -67,11 +72,17 @@ class Fetcher:
             try:
                 r = self.session.get(url, timeout=self.timeout, **kw)
                 r.encoding = "utf-8"
+                self._fails = 0
                 return r
             except requests.RequestException as e:
                 last = e
                 time.sleep(1.5 * (attempt + 1))
+        self._fails += 1
         log.warning("GET failed %s: %s", url, last)
+        if self._fails >= self.fail_limit:
+            self.dead = True
+            log.error("circuit breaker open: %d consecutive failures, "
+                      "domain likely blocked/unreachable", self._fails)
         return None
 
     def get_many(self, paths):

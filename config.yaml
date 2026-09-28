@@ -17,6 +17,9 @@ sources:
     name: gaoxiaojob
     base: https://www.gaoxiaojob.com
     enabled: true
+    # 被限流过，降速采集
+    min_delay: 0.9
+    max_delay: 1.6
     # 学科栏目页（服务端渲染，用于发现最新公告 ID 前沿）
     frontier_columns:
       - /column/1.html     # 高校招聘
@@ -47,9 +50,17 @@ sources:
     base: https://m.gaoxiaojob.com
     enabled: true
     # 职位级岗位（公告拆分的具体职位），带需求专业/地点，化学岗金标准
+    min_delay: 0.9
+    max_delay: 1.6
     seed_ids: [2193507, 2193504, 2193505, 2193506, 2193508, 2193509, 2193510,
                2013175, 2233370]
-    backfill_cap: 5000
+    backfill_cap: 15000
+
+  - type: cssc
+    name: cssc
+    base: http://www.cssc.net.cn
+    enabled: true
+    # 中船集团官网招聘栏目（列表型）：央企秋招公告官方直采
 
 # ---------- 机构类规则 ----------
 

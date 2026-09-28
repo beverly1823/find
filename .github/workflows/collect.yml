@@ -3,7 +3,12 @@ name: collect-and-build
 on:
   schedule:
     - cron: "30 0 * * *"   # 每天 08:30 北京时间
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      backfill:
+        description: "回填数量（0=正常增量，如 20000=历史回填）"
+        default: "0"
+        type: string
 
 permissions:
   contents: write
@@ -11,6 +16,7 @@ permissions:
 jobs:
   collect:
     runs-on: ubuntu-latest
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
 
@@ -22,7 +28,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Collect
-        run: python run_collect.py
+        run: python run_collect.py --backfill ${{ github.event.inputs.backfill || '0' }}
 
       - name: Build site
         run: python build_site.py

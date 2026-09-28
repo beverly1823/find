@@ -74,6 +74,10 @@ class Store:
             "INSERT OR REPLACE INTO state(key,value) VALUES(?,?)", (key, str(value)))
         self.conn.commit()
 
+    def has_job(self, job_id):
+        return self.conn.execute(
+            "SELECT 1 FROM jobs WHERE id=?", (job_id,)).fetchone() is not None
+
     def upsert(self, job):
         now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         norm = re.sub(r"[\s（）()【】\[\]·、，,\-—]", "", job["title"])
